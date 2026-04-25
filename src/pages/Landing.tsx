@@ -65,8 +65,8 @@ export default function Landing() {
           Pati<span className="text-orange-500">Maps</span>
         </h1>
 
-        <p className="text-slate-600 dark:text-slate-300 text-lg md:text-xl max-w-2xl text-balance font-medium leading-relaxed">
-          İstanbul genelinde can dostlarımıza hizmet veren belediye rehabilitasyon merkezlerini ve özel veteriner kliniklerini keşfedin; sağlığa giden yolda onlara rehberlik edin.
+        <p className="text-slate-600 dark:text-slate-300 text-lg md:text-xl max-w-4xl text-balance font-medium leading-relaxed">
+          İstanbul genelindeki belediyelere ait hayvan bakım merkezlerini ve özel veteriner kliniklerini şeffaf, akıcı ve kullanıcı dostu harita üzerinden keşfedin. Güncel görseller, yol tarifi seçeneği, konumlara ait açıklayıcı bilgiler ve anlık yerel verilerle, dostlarımızın sağlığa giden yolculuğuna tek bir arayüzden rehberlik edin.
         </p>
 
         <div className="flex flex-col items-center gap-6 mt-8 w-full">
@@ -78,47 +78,48 @@ export default function Landing() {
             <span>Haritayı Keşfet</span>
           </button>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl justify-center">
-            <div className="flex flex-col items-center w-full sm:w-auto">
+          <div className="flex flex-col lg:flex-row gap-4 w-full max-w-6xl justify-center items-stretch mt-4">
+            <div className="flex flex-col items-stretch w-full lg:w-1/3">
               <button 
                 onClick={() => setModalMode('feedback')}
-                className="w-full sm:w-auto px-6 py-4 bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 border-2 border-orange-200 dark:border-slate-700 rounded-2xl shadow-sm hover:border-orange-500 dark:hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all flex items-center justify-start gap-4"
+                className="h-full w-full px-6 py-4 bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 border-2 border-orange-200 dark:border-slate-700 rounded-2xl shadow-sm hover:border-orange-500 dark:hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all flex items-center justify-start gap-4 text-left"
               >
-                <Heart size={24} className="fill-orange-500 text-orange-500 shrink-0" />
-                <div className="flex flex-col items-start text-left">
-                  <span className="font-bold text-base">Geri Bildirim / Teşekkür</span>
-                  <span className="text-xs font-medium opacity-80">Düşüncelerinizi paylaşın</span>
+                <Heart size={28} className="fill-orange-500 text-orange-500 shrink-0" />
+                <div className="flex flex-col items-start leading-tight">
+                  <span className="font-bold text-sm lg:text-base">Geri Bildirim / Teşekkür</span>
+                  <span className="text-xs font-medium opacity-80 mt-0.5">Düşüncelerinizi paylaşın</span>
                 </div>
               </button>
             </div>
 
-            <div className="flex flex-col items-center w-full sm:w-auto">
+            <div className="flex flex-col items-stretch w-full lg:w-1/3">
               <button 
                 onClick={() => setModalMode('add_clinic')}
-                className="w-full sm:w-auto px-6 py-4 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-2 border-indigo-200 dark:border-slate-700 rounded-2xl shadow-sm hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all flex items-center justify-start gap-4"
+                className="h-full w-full px-6 py-4 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-2 border-indigo-200 dark:border-slate-700 rounded-2xl shadow-sm hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all flex items-center justify-start gap-4 text-left"
               >
-                <Map size={24} className="text-indigo-500 shrink-0" />
-                <div className="flex flex-col items-start text-left">
-                  <span className="font-bold text-base">Klinik / Merkez Ekle</span>
-                  <span className="text-xs font-medium opacity-80">Eksik olan noktayı bildirin</span>
+                <Map size={28} className="text-indigo-500 shrink-0" />
+                <div className="flex flex-col items-start leading-tight">
+                  <span className="font-bold text-sm lg:text-base">Klinik / Merkez Ekle</span>
+                  <span className="text-xs font-medium opacity-80 mt-0.5">Eksik olan noktayı bildirin</span>
                 </div>
               </button>
             </div>
-          </div>
-          
-          {/* IBb Veteriner Hizmetleri Link Section Moved to End */}
-          <div className="flex flex-col items-center mt-6 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm px-6 py-4 rounded-3xl border border-orange-100 dark:border-slate-700 shadow-sm transition-all hover:bg-white/80 dark:hover:bg-slate-800/80">
-            <h2 className="text-sm md:text-base font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1 flex items-center gap-2">
-               <PawPrint size={18} />
-               VETERİNER HİZMETLERİ ŞUBE MÜDÜRLÜĞÜ
-               <PawPrint size={18} />
-            </h2>
-            <a href="https://tarim.ibb.istanbul/veteriner-hizmetleri-mudurlugu/"
-               target="_blank" rel="noreferrer"
-               className="text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 flex items-center gap-1 transition-colors"
-            >
-              Detaylı Bilgi İçin Tıklayın <ExternalLink size={14} />
-            </a>
+
+            <div className="flex flex-col items-stretch w-full lg:w-1/3">
+              <a 
+                href="https://tarim.ibb.istanbul/veteriner-hizmetleri-mudurlugu/"
+                target="_blank" rel="noreferrer"
+                className="h-full w-full px-6 py-4 bg-white dark:bg-slate-800 text-teal-600 dark:text-teal-400 border-2 border-teal-200 dark:border-slate-700 rounded-2xl shadow-sm hover:border-teal-500 dark:hover:border-teal-500 hover:bg-teal-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all flex items-center justify-start gap-4 text-left"
+              >
+                <PawPrint size={28} className="text-teal-500 shrink-0" />
+                <div className="flex flex-col items-start leading-tight overflow-hidden">
+                  <span className="font-bold text-xs lg:text-[13px] title-font tracking-tight">Veteriner Hizmetleri Müdürlüğü</span>
+                  <span className="text-[10px] lg:text-[11px] font-medium opacity-80 mt-1 line-clamp-2">
+                     Güncel duyurular için siteyi ziyaret edin.
+                  </span>
+                </div>
+              </a>
+            </div>
           </div>
 
         </div>
