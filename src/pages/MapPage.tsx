@@ -2,10 +2,36 @@ import React, { useEffect, useState, useRef } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
-import { ArrowLeft, MapPin, Phone, Clock, Star, Navigation, Loader2 } from 'lucide-react';
+import { ArrowLeft, MapPin, Phone, Clock, Star, Navigation, Loader2, PawPrint } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { fetchMuseums } from '../services/dataService';
 import { Museum } from '../types';
+
+const SafeImage = ({ src, alt, className }: { src?: string; alt: string; className?: string }) => {
+  const [error, setError] = useState(false);
+
+  // Default pet-related image or placeholder
+  const placeholder = 'https://images.unsplash.com/photo-1543852786-1cf6624b9987?auto=format&fit=crop&w=400&q=80';
+
+  if (!src || error) {
+    return (
+      <img 
+        src={placeholder} 
+        alt="Görsel Yok" 
+        className={className} 
+      />
+    );
+  }
+
+  return (
+    <img 
+      src={src} 
+      alt={alt} 
+      className={className} 
+      onError={() => setError(true)} 
+    />
+  );
+};
 
 // Fix typical React-Leaflet icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -17,26 +43,30 @@ L.Icon.Default.mergeOptions({
 
 const createCustomIcon = (type: string) => {
   const isKlinik = type.toLowerCase().includes('klinik') || type.toLowerCase().includes('hastane');
-  const color = isKlinik ? '#10b981' : '#8b5cf6'; // Emerald 500 for klinik, Violet 500 for others
+  const color = isKlinik ? '#16a34a' : '#9333ea'; // Green 600 for klinik, Purple 600 for belediye
 
-  const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="${color}" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="2"/><circle cx="18" cy="8" r="2"/><circle cx="20" cy="16" r="2"/><path d="M9 10a5 5 0 0 1 5 5v3.5a3.5 3.5 0 0 1-6.84 1.045Q6.52 17.48 4.46 16.84A3.5 3.5 0 0 1 5.5 10Z"/></svg>`;
+  const klinikIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>`;
+  
+  const belediyeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="22" y2="22"/><line x1="6" x2="6" y1="18" y2="11"/><line x1="10" x2="10" y1="18" y2="11"/><line x1="14" x2="14" y1="18" y2="11"/><line x1="18" x2="18" y1="18" y2="11"/><polygon points="12 2 20 7 4 7"/></svg>`;
+
+  const svgIcon = isKlinik ? klinikIcon : belediyeIcon;
 
   const html = `
     <div style="
-      width: 30px; height: 30px; 
+      width: 40px; height: 40px; 
       background: white; border-radius: 50%;
-      border: 2px solid ${color};
+      border: 3px solid ${color};
       display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.15), 0 2px 4px -2px rgb(0 0 0 / 0.15);
       color: ${color};
     ">
       ${svgIcon}
     </div>
     <div style="
       width: 0; height: 0; 
-      border-left: 6px solid transparent; 
-      border-right: 6px solid transparent; 
-      border-top: 8px solid ${color}; 
+      border-left: 8px solid transparent; 
+      border-right: 8px solid transparent; 
+      border-top: 10px solid ${color}; 
       margin: -2px auto 0;
     "></div>
   `;
@@ -44,10 +74,10 @@ const createCustomIcon = (type: string) => {
   return L.divIcon({
     html,
     className: '',
-    iconSize: [30, 36],
-    iconAnchor: [15, 36],
-    popupAnchor: [0, -36],
-    tooltipAnchor: [0, -36]
+    iconSize: [40, 50],
+    iconAnchor: [20, 50],
+    popupAnchor: [0, -50],
+    tooltipAnchor: [0, -50]
   });
 };
 
@@ -56,7 +86,7 @@ function ChangeView({ bounds }: { bounds: L.LatLngBounds | null }) {
   const map = useMap();
   useEffect(() => {
     if (bounds && bounds.isValid()) {
-      map.fitBounds(bounds, { padding: [50, 50] });
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
     }
   }, [bounds, map]);
   return null;
@@ -70,14 +100,22 @@ export default function MapPage() {
 
   useEffect(() => {
     let isMounted = true;
-    fetchMuseums((msg) => {
+    
+    const handleProgress = (msg: string) => {
       if (isMounted) setProgress(msg);
-    }).then(data => {
+    };
+
+    const handlePartialData = (partialMuseums: Museum[]) => {
+      if (isMounted) setMuseums(partialMuseums);
+    };
+
+    fetchMuseums(handleProgress, handlePartialData).then(data => {
       if (isMounted) {
         setMuseums(data);
         setLoading(false);
       }
     });
+
     return () => { isMounted = false; };
   }, []);
 
@@ -88,20 +126,29 @@ export default function MapPage() {
   }
 
   return (
-    <div className="flex flex-col h-screen w-full bg-slate-50 overflow-hidden font-sans text-slate-900">
+    <div className="flex flex-col h-screen w-full bg-slate-50 dark:bg-slate-900 overflow-hidden font-sans text-slate-900 dark:text-slate-100 transition-colors duration-300">
       {/* Header */}
-      <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shrink-0 z-10">
+      <header className="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 shrink-0 z-10 transition-colors duration-300">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm">
              <MapPin size={24} />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-800">Pati<span className="text-indigo-600">Maps</span></h1>
+          <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-white">Pati<span className="text-indigo-600 dark:text-indigo-400">Maps</span></h1>
         </div>
         
         <div className="flex items-center gap-3">
           <button 
+             onClick={() => {
+               localStorage.removeItem('geocoded_locations_v3');
+               window.location.reload();
+             }}
+             className="px-4 py-2 text-sm font-medium bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-300 rounded-lg shadow-sm hover:bg-orange-200 dark:hover:bg-orange-500/30 flex items-center gap-2 transition-colors"
+          >
+            Veri Yenile
+          </button>
+          <button 
              onClick={() => navigate('/')}
-             className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 flex items-center gap-2"
+             className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-2 transition-colors"
           >
             <ArrowLeft size={16} />
             Ana Sayfa
@@ -111,7 +158,7 @@ export default function MapPage() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden relative">
-        {loading && (
+        {loading && museums.length === 0 && (
           <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
             <Loader2 size={48} className="animate-spin text-blue-600 mb-4" />
             <p className="text-lg font-medium text-gray-800 animate-pulse">{progress}</p>
@@ -120,32 +167,13 @@ export default function MapPage() {
             </p>
           </div>
         )}
-
-        {/* Sidebar */}
-        <aside className="w-80 bg-white border-r border-slate-200 flex flex-col shrink-0 z-20 hidden md:flex">
-           <div className="p-4 border-b border-slate-100 bg-slate-50/50">
-             <div className="flex justify-between items-center mb-2">
-                <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Kayıtlı Noktalar ({museums.length})</h2>
-                <span className="text-[10px] px-1.5 py-0.5 bg-indigo-100 text-indigo-700 rounded font-medium">İstanbul</span>
-             </div>
-             <div className="text-[10px] text-slate-400 italic">Açık kaynaklı harita verileri</div>
-           </div>
-           <div className="flex-1 overflow-y-auto">
-             <div className="divide-y divide-slate-100">
-               {museums.map(museum => (
-                 <div key={museum.id} className="p-4 hover:bg-slate-50 transition-colors">
-                   <h3 className="font-semibold text-sm text-slate-800">{museum.name}</h3>
-                   <p className="text-xs text-slate-500 mb-1">{museum.district}</p>
-                   {museum.type && (
-                     <div className="flex gap-2">
-                       <span className="text-[10px] bg-white border border-slate-200 px-1.5 py-0.5 rounded text-slate-600">{museum.type}</span>
-                     </div>
-                   )}
-                 </div>
-               ))}
-             </div>
-           </div>
-        </aside>
+        
+        {loading && museums.length > 0 && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-white/90 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-slate-200 flex items-center gap-3">
+            <Loader2 size={16} className="animate-spin text-blue-600" />
+            <span className="text-sm font-medium text-slate-700">{progress}</span>
+          </div>
+        )}
 
         {/* Map Container */}
         <main className="flex-1 relative bg-slate-200 z-0">
@@ -165,43 +193,41 @@ export default function MapPage() {
                 position={[museum.lat!, museum.lng!]}
                 icon={createCustomIcon(museum.type || '')}
                >
-                 <Tooltip direction="top" offset={[0, -30]} opacity={1} className="bg-white border-none shadow-lg rounded-xl text-sm font-sans px-3 py-2">
+                 <Tooltip direction="top" offset={[0, -30]} opacity={1} className="bg-white dark:bg-slate-800 border-none shadow-lg rounded-xl text-sm font-sans px-3 py-2 text-slate-800 dark:text-slate-100">
                    <div className="font-semibold">{museum.name}</div>
-                   <div className="text-gray-500 text-xs">{museum.district} {museum.type ? `- ${museum.type}` : ''}</div>
+                   <div className="text-gray-500 dark:text-gray-400 text-xs">{museum.district} {museum.type ? `- ${museum.type}` : ''}</div>
                  </Tooltip>
-                  <Popup className="rounded-xl overflow-hidden shadow-2xl border-0">
-                   <div className="w-[280px] font-sans">
-                     {museum.media && (
-                       <img src={museum.media} alt={museum.name} className="w-full h-32 object-cover" />
-                     )}
-                     <div className="p-4 bg-white">
+                  <Popup className="rounded-xl overflow-hidden shadow-2xl border-0 !p-0">
+                   <div className="w-[280px] font-sans bg-white dark:bg-slate-800">
+                     <SafeImage src={museum.media} alt={museum.name} className="w-full h-32 object-cover" />
+                     <div className="p-4 bg-white dark:bg-slate-800">
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="text-sm font-bold text-slate-800 leading-tight">{museum.name}</h4>
+                          <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 leading-tight">{museum.name}</h4>
                         </div>
                         
                         <div className="space-y-2 mb-3">
                           {museum.address && (
                             <div className="flex gap-2 text-[11px]">
                               <MapPin size={14} className="shrink-0 text-slate-400 mt-0.5" />
-                              <span className="text-slate-600">{museum.address}</span>
+                              <span className="text-slate-600 dark:text-slate-300">{museum.address}</span>
                             </div>
                           )}
                           {museum.phone && (
                             <div className="flex gap-2 text-[11px]">
                               <Phone size={14} className="shrink-0 text-slate-400 mt-0.5" />
-                              <span className="text-slate-600">{museum.phone}</span>
+                              <span className="text-slate-600 dark:text-slate-300">{museum.phone}</span>
                             </div>
                           )}
                           {museum.workingHours && (
                             <div className="flex gap-2 text-[11px]">
                               <Clock size={14} className="shrink-0 text-slate-400 mt-0.5" />
-                              <span className="text-slate-600">{museum.workingHours}</span>
+                              <span className="text-slate-600 dark:text-slate-300">{museum.workingHours}</span>
                             </div>
                           )}
                           {museum.rating && (
                             <div className="flex gap-2 text-[11px]">
                               <Star size={14} className="shrink-0 text-slate-400 mt-0.5" />
-                              <span className="text-slate-600">Puan: <strong className="text-slate-800">{museum.rating}</strong></span>
+                              <span className="text-slate-600 dark:text-slate-300">Puan: <strong className="text-slate-800 dark:text-slate-100">{museum.rating}</strong></span>
                             </div>
                           )}
                         </div>
@@ -209,7 +235,7 @@ export default function MapPage() {
                         <a 
                           href={`https://www.google.com/maps/dir/?api=1&destination=${museum.lat},${museum.lng}`}
                           target="_blank" rel="noreferrer"
-                          className="mt-4 flex items-center justify-center gap-2 w-full bg-slate-800 text-white text-[11px] font-semibold py-2 rounded-lg hover:bg-slate-900 transition-colors"
+                          className="mt-4 flex items-center justify-center gap-2 w-full bg-slate-800 dark:bg-indigo-600 text-white text-[11px] font-semibold py-2 rounded-lg hover:bg-slate-900 dark:hover:bg-indigo-700 transition-colors"
                         >
                           <Navigation size={14} />
                           Yol Tarifi Al

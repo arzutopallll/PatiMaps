@@ -1,14 +1,24 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { PawPrint, ArrowRight, Heart, MessageCircle, ExternalLink, X, Send, Map } from 'lucide-react';
+import { PawPrint, ArrowRight, Heart, MessageCircle, ExternalLink, X, Send, Map, Moon, Sun, MapPin } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function Landing() {
   const navigate = useNavigate();
-  const [isFeedbackOpen, setIsFeedbackOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'feedback' | 'add_clinic' | null>(null);
   const [feedbackEmail, setFeedbackEmail] = useState('');
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains('dark'));
+
+  const toggleDark = () => {
+    setIsDark(prev => {
+      const next = !prev;
+      if (next) document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+      return next;
+    });
+  };
 
   const handleFeedbackSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,7 +26,7 @@ export default function Landing() {
     setTimeout(() => {
       setIsSubmitted(true);
       setTimeout(() => {
-        setIsFeedbackOpen(false);
+        setModalMode(null);
         setIsSubmitted(false);
         setFeedbackEmail('');
         setFeedbackMessage('');
@@ -25,12 +35,20 @@ export default function Landing() {
   };
 
   return (
-    <div className="min-h-screen bg-[#fff9f0] flex flex-col items-center justify-center font-sans text-slate-800 px-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#fff9f0] dark:bg-slate-900 flex flex-col items-center justify-center font-sans text-slate-800 dark:text-slate-100 px-6 relative overflow-hidden transition-colors duration-300">
       
+      {/* Theme Toggle Button */}
+      <button 
+        onClick={toggleDark}
+        className="absolute top-6 right-6 p-3 bg-white dark:bg-slate-800 rounded-full shadow-md text-slate-600 dark:text-slate-300 hover:scale-110 transition-transform z-20"
+      >
+        {isDark ? <Sun size={20} /> : <Moon size={20} />}
+      </button>
+
       {/* Decorative background circles */}
-      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-orange-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
-      <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-yellow-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
-      <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
+      <div className="absolute top-[-10%] left-[-10%] w-96 h-96 bg-orange-100 dark:bg-orange-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+      <div className="absolute top-[-10%] right-[-10%] w-96 h-96 bg-yellow-100 dark:bg-yellow-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+      <div className="absolute bottom-[-20%] left-[20%] w-96 h-96 bg-pink-100 dark:bg-pink-500/10 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000"></div>
 
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
@@ -39,49 +57,70 @@ export default function Landing() {
         className="max-w-2xl w-full flex flex-col items-center text-center space-y-6 z-10"
       >
         
-        {/* IBb Veteriner Hizmetleri Link Section */}
-        <div className="flex flex-col items-center mb-4 bg-white/60 backdrop-blur-sm p-4 rounded-3xl border border-orange-100 shadow-sm transition-all hover:bg-white/80">
-          <h2 className="text-sm md:text-base font-bold text-orange-600 uppercase tracking-widest mb-1 flex items-center gap-2">
-             <PawPrint size={18} />
-             VETERİNER HİZMETLERİ ŞUBE MÜDÜRLÜĞÜ
-             <PawPrint size={18} />
-          </h2>
-          <a href="https://tarim.ibb.istanbul/veteriner-hizmetleri-mudurlugu/"
-             target="_blank" rel="noreferrer"
-             className="text-xs md:text-sm font-medium text-slate-500 hover:text-orange-500 flex items-center gap-1 transition-colors"
-          >
-            Detaylı Bilgi İçin Tıklayın <ExternalLink size={14} />
-          </a>
-        </div>
-
         <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-rose-400 rounded-[2rem] shadow-xl flex items-center justify-center mb-2 text-white transform -rotate-6 hover:rotate-0 transition-transform duration-300">
           <PawPrint size={48} />
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-800 text-balance">
+        <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-800 dark:text-white text-balance">
           Pati<span className="text-orange-500">Maps</span>
         </h1>
 
-        <p className="text-slate-600 text-lg md:text-xl max-w-lg text-balance font-medium">
-          Sokaktaki can dostlarımız için İstanbul'daki ücretsiz hayvan sağlığı merkezlerini ve veteriner kliniklerini keşfedin.
+        <p className="text-slate-600 dark:text-slate-300 text-lg md:text-xl max-w-2xl text-balance font-medium leading-relaxed">
+          İstanbul genelinde can dostlarımıza hizmet veren belediye rehabilitasyon merkezlerini ve özel veteriner kliniklerini keşfedin; sağlığa giden yolda onlara rehberlik edin.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 mt-8">
+        <div className="flex flex-col items-center gap-6 mt-8 w-full">
           <button 
             onClick={() => navigate('/map')}
-            className="px-8 py-4 bg-orange-500 text-white rounded-2xl shadow-lg hover:bg-orange-600 hover:shadow-xl hover:-translate-y-1 transition-all flex items-center justify-center gap-3 font-bold text-lg"
+            className="w-full max-w-xs sm:max-w-md px-8 py-5 bg-orange-500 text-white rounded-3xl shadow-[0_8px_30px_rgb(249,115,22,0.3)] hover:bg-orange-600 hover:shadow-[0_8px_30px_rgb(249,115,22,0.5)] hover:-translate-y-1 transition-all flex items-center justify-center gap-4 font-extrabold text-xl sm:text-2xl border-2 border-orange-400"
           >
-            <span>Haritayı Aç</span>
-            <ArrowRight size={20} className="group-hover:translate-x-1" />
+            <MapPin size={28} />
+            <span>Haritayı Keşfet</span>
           </button>
 
-          <button 
-            onClick={() => setIsFeedbackOpen(true)}
-            className="px-8 py-4 bg-white text-orange-600 border-2 border-orange-200 rounded-2xl shadow-sm hover:border-orange-500 hover:bg-orange-50 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 font-bold text-lg"
-          >
-            <Heart size={20} className="fill-orange-500 text-orange-500" />
-            <span>Geri Bildirim / Teşekkür</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-4 w-full max-w-2xl justify-center">
+            <div className="flex flex-col items-center w-full sm:w-auto">
+              <button 
+                onClick={() => setModalMode('feedback')}
+                className="w-full sm:w-auto px-6 py-4 bg-white dark:bg-slate-800 text-orange-600 dark:text-orange-400 border-2 border-orange-200 dark:border-slate-700 rounded-2xl shadow-sm hover:border-orange-500 dark:hover:border-orange-500 hover:bg-orange-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all flex items-center justify-start gap-4"
+              >
+                <Heart size={24} className="fill-orange-500 text-orange-500 shrink-0" />
+                <div className="flex flex-col items-start text-left">
+                  <span className="font-bold text-base">Geri Bildirim / Teşekkür</span>
+                  <span className="text-xs font-medium opacity-80">Düşüncelerinizi paylaşın</span>
+                </div>
+              </button>
+            </div>
+
+            <div className="flex flex-col items-center w-full sm:w-auto">
+              <button 
+                onClick={() => setModalMode('add_clinic')}
+                className="w-full sm:w-auto px-6 py-4 bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 border-2 border-indigo-200 dark:border-slate-700 rounded-2xl shadow-sm hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50 dark:hover:bg-slate-700 hover:-translate-y-1 transition-all flex items-center justify-start gap-4"
+              >
+                <Map size={24} className="text-indigo-500 shrink-0" />
+                <div className="flex flex-col items-start text-left">
+                  <span className="font-bold text-base">Klinik / Merkez Ekle</span>
+                  <span className="text-xs font-medium opacity-80">Eksik olan noktayı bildirin</span>
+                </div>
+              </button>
+            </div>
+          </div>
+          
+          {/* IBb Veteriner Hizmetleri Link Section Moved to End */}
+          <div className="flex flex-col items-center mt-6 bg-white/60 dark:bg-slate-800/60 backdrop-blur-sm px-6 py-4 rounded-3xl border border-orange-100 dark:border-slate-700 shadow-sm transition-all hover:bg-white/80 dark:hover:bg-slate-800/80">
+            <h2 className="text-sm md:text-base font-bold text-orange-600 dark:text-orange-400 uppercase tracking-widest mb-1 flex items-center gap-2">
+               <PawPrint size={18} />
+               VETERİNER HİZMETLERİ ŞUBE MÜDÜRLÜĞÜ
+               <PawPrint size={18} />
+            </h2>
+            <a href="https://tarim.ibb.istanbul/veteriner-hizmetleri-mudurlugu/"
+               target="_blank" rel="noreferrer"
+               className="text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-orange-500 dark:hover:text-orange-400 flex items-center gap-1 transition-colors"
+            >
+              Detaylı Bilgi İçin Tıklayın <ExternalLink size={14} />
+            </a>
+          </div>
+
         </div>
 
       </motion.div>
@@ -90,9 +129,9 @@ export default function Landing() {
         Açık Veri & OpenStreetMap Destekli
       </div>
 
-      {/* Feedback Modal */}
+      {/* Modal */}
       <AnimatePresence>
-        {isFeedbackOpen && (
+        {modalMode !== null && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -103,22 +142,26 @@ export default function Landing() {
               initial={{ scale: 0.9, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
-              className="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative"
+              className="bg-white dark:bg-slate-800 rounded-[2rem] p-8 max-w-md w-full shadow-2xl relative"
             >
               <button 
-                onClick={() => setIsFeedbackOpen(false)}
-                className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 bg-slate-100 rounded-full p-2 hover:bg-slate-200 transition-colors"
+                onClick={() => setModalMode(null)}
+                className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-slate-100 dark:bg-slate-700 rounded-full p-2 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
               >
                 <X size={20} />
               </button>
 
               <div className="flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 bg-rose-100 text-rose-500 rounded-full flex items-center justify-center">
-                  <MessageCircle size={24} />
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${modalMode === 'feedback' ? 'bg-rose-100 text-rose-500' : 'bg-indigo-100 text-indigo-500'}`}>
+                  {modalMode === 'feedback' ? <MessageCircle size={24} /> : <Map size={24} />}
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-slate-800">Bize Ulaşın</h3>
-                  <p className="text-sm text-slate-500">Değerli düşüncelerinizi paylaşırsanız mutlu oluruz 🐾</p>
+                  <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">
+                    {modalMode === 'feedback' ? 'Bize Ulaşın' : 'Klinik / Merkez Ekle'}
+                  </h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">
+                    {modalMode === 'feedback' ? 'Değerli düşüncelerinizi paylaşırsanız mutlu oluruz 🐾' : 'Haritada olmayan bir merkezi eklemek için bilgileri bizimle paylaşın.'}
+                  </p>
                 </div>
               </div>
 
@@ -127,36 +170,38 @@ export default function Landing() {
                    <div className="w-16 h-16 bg-green-100 text-green-500 rounded-full flex items-center justify-center mb-4">
                      <Heart size={32} className="fill-green-500" />
                    </div>
-                   <h4 className="text-lg font-bold text-slate-800">Teşekkürler!</h4>
-                   <p className="text-slate-600">Mesajınız başarıyla iletildi.</p>
+                   <h4 className="text-lg font-bold text-slate-800 dark:text-slate-100">Teşekkürler!</h4>
+                   <p className="text-slate-600 dark:text-slate-400">Mesajınız başarıyla iletildi.</p>
                  </div>
               ) : (
                 <form onSubmit={handleFeedbackSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1 ml-1">E-posta Adresiniz</label>
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1 ml-1">E-posta Adresiniz</label>
                     <input 
                       type="email" 
                       required
                       value={feedbackEmail}
                       onChange={(e) => setFeedbackEmail(e.target.value)}
                       placeholder="adiniz@example.com"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all"
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-slate-700 transition-all dark:text-slate-100"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-1 ml-1">Mesajınız / İsteğiniz</label>
+                    <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1 ml-1">
+                       {modalMode === 'add_clinic' ? 'Merkez Adı ve Diğer Bilgiler' : 'Mesajınız / İsteğiniz'}
+                    </label>
                     <textarea 
                       required
                       rows={4}
                       value={feedbackMessage}
                       onChange={(e) => setFeedbackMessage(e.target.value)}
-                      placeholder="Bize ne söylemek istersiniz?"
-                      className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white transition-all resize-none"
+                      placeholder={modalMode === 'add_clinic' ? "Klinik adı, adresi veya iletişim bilgilerini yazabilirsiniz." : "Bize ne söylemek istersiniz?"}
+                      className="w-full px-4 py-3 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-2xl focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white dark:focus:bg-slate-700 transition-all resize-none dark:text-slate-100"
                     ></textarea>
                   </div>
                   <button 
                     type="submit"
-                    className="w-full py-4 bg-slate-800 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-900 transition-colors"
+                    className="w-full py-4 bg-slate-800 dark:bg-orange-500 text-white rounded-2xl font-bold flex items-center justify-center gap-2 hover:bg-slate-900 dark:hover:bg-orange-600 transition-colors"
                   >
                     Gönder <Send size={18} />
                   </button>
