@@ -1,0 +1,6 @@
+{
+  "name": "PatiMaps",
+  "description": "İstanbul'daki ücretsiz hayvan sağlığı merkezlerini ve veteriner kliniklerini gösteren interaktif harita.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
