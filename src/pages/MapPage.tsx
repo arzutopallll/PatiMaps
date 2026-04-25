@@ -130,22 +130,18 @@ export default function MapPage() {
       {/* Header */}
       <header className="h-16 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between px-6 shrink-0 z-10 transition-colors duration-300">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-sm">
+          <div className="w-10 h-10 bg-orange-500 rounded-xl flex items-center justify-center text-white shadow-sm">
              <MapPin size={24} />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-white">Pati<span className="text-indigo-600 dark:text-indigo-400">Maps</span></h1>
+          <h1 className="text-xl font-bold tracking-tight text-slate-800 dark:text-white">Pati<span className="text-orange-500 dark:text-orange-400">Maps</span></h1>
         </div>
         
         <div className="flex items-center gap-3">
-          <button 
-             onClick={() => {
-               localStorage.removeItem('geocoded_locations_v3');
-               window.location.reload();
-             }}
-             className="px-4 py-2 text-sm font-medium bg-orange-100 dark:bg-orange-500/20 text-orange-700 dark:text-orange-300 rounded-lg shadow-sm hover:bg-orange-200 dark:hover:bg-orange-500/30 flex items-center gap-2 transition-colors"
+          <div 
+             className="px-4 py-2 text-sm font-medium bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-lg shadow-sm flex items-center gap-2"
           >
-            Veri Yenile
-          </button>
+            {museums.length} Mekan Listelendi
+          </div>
           <button 
              onClick={() => navigate('/')}
              className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white flex items-center gap-2 transition-colors"
